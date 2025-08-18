@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3CX Quick Call</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 5rem auto; }
+    .card { padding: 1.25rem; border: 1px solid #ddd; border-radius: 12px; }
+    input, button { font-size: 1rem; padding: .7rem .9rem; }
+    input { width: 100%; box-sizing: border-box; margin: .6rem 0 1rem; }
+    button { cursor: pointer; }
+    .log { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; background: #fafafa; padding: .75rem; border-radius: 8px; border: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Call an Extension via 3CX</h2>
+    <label for="ext">Extension to call</label>
+    <input id="ext" type="text" placeholder="e.g. 201" autocomplete="off" />
+    <button id="btn">Call from 327</button>
+    <div id="out" class="log" style="margin-top:1rem;"></div>
+  </div>
+
+  <script>
+    const btn = document.getElementById('btn');
+    const ext = document.getElementById('ext');
+    const out = document.getElementById('out');
+
+    btn.onclick = async () => {
+      const to = (ext.value || '').trim();
+      out.textContent = 'Calling...';
+      try {
+        const res = await fetch('/.netlify/functions/makecall', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to })
+        });
+        const data = await res.json();
+        out.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        out.textContent = 'Error: ' + e.message;
+      }
+    };
+  </script>
+</body>
+</html>
