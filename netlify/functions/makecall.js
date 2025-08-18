@@ -15,10 +15,10 @@ export async function handler(event) {
   };
 
   try {
-    const r = await fetch(process.env.UPSTASH_URL + "/lpush/callqueue", {
+    const r = await fetch(https://gusc1-magical-sheep-30294.upstash.io, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.UPSTASH_TOKEN}`,
+        Authorization: `Bearer ${AXZWASQgY2RmMDg2MzEtMTBmYi00Zjc2LTgzZTUtMGYwYWUwNDYyNjE3ZGZiNjY1M2QwNGJkNGM0M2IwYmQyNDkxYzMxMmJkZjQ=}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify([JSON.stringify(job)])
