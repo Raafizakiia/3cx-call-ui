@@ -76,18 +76,20 @@ exports.handler = async (event) => {
       body: JSON.stringify({ destination: dest, timeout: 30 })
     });
 
-    const bodyText = await callRes.text(); // قد يرجع JSON أو نص
-    return {
-      statusCode: callRes.status,
-      headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
-      body: bodyText
-    };
+const bodyText = await callRes.text();
+let parsed;
+try {
+  parsed = JSON.parse(bodyText);
+} catch (e) {
+  parsed = { raw: bodyText }; // fallback إذا ما كان JSON
+}
 
-  } catch (err) {
-    return {
-      statusCode: 500,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({ error: err.message || String(err) })
-    };
-  }
+return {
+  statusCode: callRes.status,
+  headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+  body: JSON.stringify({
+    status: callRes.status,
+    response: parsed
+  })
+};
 };
