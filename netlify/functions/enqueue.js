@@ -7,21 +7,25 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization"
 };
 
-// ✨ ضع القيم هنا مباشرة
+// ⚠️ تنبيه: وجود السر هنا غير آمن إذا كان الريبو عاماً.
+// استخدم متغيرات بيئة إن أمكن.
 const CONFIG = {
-  base: "https://strata.3cx.ae",   // THREEX_BASE
-  clientId: "postmantest",         // CLIENT_ID
-  clientSecret: "Fn9HWzfOwHjsTF2PbWMfQ1vqyHjMbT9w", // CLIENT_SECRET
-  fromExt: "327"                   // FROM_EXT
+  base: "https://strata.3cx.ae",
+  clientId: "postmantest",
+  clientSecret: "Fn9HWzfOwHjsTF2PbWMfQ1vqyHjMbT9w",
+  fromExt: "327"
 };
 
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: CORS_HEADERS };
   }
-
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, headers: CORS_HEADERS, body: "Method Not Allowed" };
+    return {
+      statusCode: 405,
+      headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Method Not Allowed" })
+    };
   }
 
   try {
@@ -31,12 +35,13 @@ exports.handler = async (event) => {
     if (!ALLOWED.test(dest)) {
       return {
         statusCode: 400,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ error: 'Invalid "to" value' })
+        headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+        body: JSON.stringify({ error: 'Invalid "to" value', to: dest })
       };
     }
 
-    // 1) الحصول على Access Token
+    // 1) طلب التوكن من /connect/token
+    console.log("[enqueue] requesting token @ /connect/token");
     const tokRes = await fetch(`${CONFIG.base}/connect/token`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -47,19 +52,23 @@ exports.handler = async (event) => {
       })
     });
 
-    if (!tokRes.ok) {
-      const t = await tokRes.text();
+    const tokText = await tokRes.text();
+    let tokJson;
+    try { tokJson = JSON.parse(tokText); } catch { tokJson = { raw: tokText || null }; }
+
+    if (!tokRes.ok || !tokJson.access_token) {
+      console.log("[enqueue] token failed", tokRes.status, tokJson);
       return {
-        statusCode: tokRes.status,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ step: "token", status: tokRes.status, body: t })
+        statusCode: tokRes.status || 500,
+        headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+        body: JSON.stringify({ step: "token", status: tokRes.status, response: tokJson })
       };
     }
 
-    const tok = await tokRes.json();
-    const accessToken = tok.access_token;
+    const accessToken = tokJson.access_token;
 
-    // 2) تنفيذ makecall
+    // 2) تنفيذ المكالمة @ /callcontrol/{fromExt}/makecall
+    console.log("[enqueue] calling makecall", CONFIG.fromExt, "->", dest);
     const callRes = await fetch(`${CONFIG.base}/callcontrol/${CONFIG.fromExt}/makecall`, {
       method: "POST",
       headers: {
@@ -71,28 +80,28 @@ exports.handler = async (event) => {
 
     const bodyText = await callRes.text();
     let parsed;
-    try {
-      parsed = JSON.parse(bodyText);
-    } catch {
-      parsed = { raw: bodyText || null };
-    }
+    try { parsed = JSON.parse(bodyText); } catch { parsed = { raw: bodyText || null }; }
+
+    const payload = {
+      ok: callRes.ok,
+      status: callRes.status,
+      from: CONFIG.fromExt,
+      to: dest,
+      response: parsed
+    };
+    console.log("[enqueue] makecall result", payload);
 
     return {
       statusCode: callRes.status,
       headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ok: callRes.ok,
-        status: callRes.status,
-        from: CONFIG.fromExt,
-        to: dest,
-        response: parsed
-      })
+      body: JSON.stringify(payload)
     };
 
   } catch (err) {
+    console.log("[enqueue] unhandled error", err);
     return {
       statusCode: 500,
-      headers: CORS_HEADERS,
+      headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
       body: JSON.stringify({ error: err.message || String(err) })
     };
   }
