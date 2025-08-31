@@ -7,116 +7,111 @@
   <meta name="color-scheme" content="light dark" />
   <style>
     :root{
-      --bg:#f7f7fb; --card:#fff; --txt:#111; --muted:#6b7280; --brand:#2563eb; --ok:#16a34a; --err:#dc2626;
-      --shadow: 0 10px 30px rgba(0,0,0,.08);
-      --radius: 16px;
-    }
-    @media (prefers-color-scheme: dark){
-      :root{ --bg:#0b0f19; --card:#111827; --txt:#f9fafb; --muted:#9ca3af; --shadow: 0 10px 30px rgba(0,0,0,.35); }
+      --bg:#0b1220; --txt:#f8fafc; --muted:#a3aed0; --brand:#2563eb; --glass:rgba(255,255,255,.06);
+      --border:rgba(255,255,255,.12); --shadow: 0 10px 30px rgba(0,0,0,.4); --radius: 18px;
     }
     *{ box-sizing:border-box }
     body{
-      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Kufi Arabic", "Tajawal", Arial, sans-serif;
-      background: linear-gradient(180deg, var(--bg), color-mix(in oklab, var(--bg) 70%, #fff));
-      color:var(--txt);
+      margin:0; color:var(--txt);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Tajawal", "Noto Kufi Arabic", Arial, sans-serif;
+      min-height:100svh;
+      /* خلفية مزخرفة */
+      background:
+        radial-gradient(1200px 600px at 110% -20%, rgba(37,99,235,.25), transparent),
+        radial-gradient(1000px 500px at -10% -10%, rgba(16,185,129,.14), transparent),
+        linear-gradient(180deg, #0b1220 0%, #0e1528 100%);
     }
-    .wrap{ max-width:860px; margin:5rem auto; padding:0 1rem; }
+    .wrap{ max-width:880px; margin:6rem auto; padding:0 1.2rem; }
     .hero{
-      background: radial-gradient(1200px 400px at 85% -50%, rgba(37,99,235,.15), transparent),
-                  radial-gradient(1200px 400px at -10% -60%, rgba(16,185,129,.12), transparent);
-      border:1px solid color-mix(in oklab, var(--card), #000 6%);
+      position:relative; overflow:hidden;
+      border:1px solid var(--border);
+      background: color-mix(in oklab, var(--glass) 100%, transparent);
+      backdrop-filter: blur(10px);
       box-shadow: var(--shadow);
       border-radius: var(--radius);
-      padding:2rem clamp(1.2rem, 3vw, 2rem);
+      padding: clamp(1.2rem, 3vw, 2rem);
     }
-    .hero h1{ margin:.2rem 0 0; font-size: clamp(1.4rem, 2.8vw, 2rem); }
-    .hero p{ margin:.6rem 0 0; color:var(--muted) }
-    .cta{
-      margin-top:1.25rem; display:flex; gap:.8rem; flex-wrap:wrap; align-items:center
+    .hero::after{
+      content:""; position:absolute; inset:auto -10% -40% -10%;
+      height:160px; background: radial-gradient(600px 120px at 50% 0%, rgba(37,99,235,.25), transparent);
+      filter: blur(30px);
     }
+    h1{ margin:.2rem 0 0; font-size: clamp(1.4rem, 3.1vw, 2.2rem) }
+    p{ margin:.7rem 0 0; color:var(--muted) }
+    .cta{ margin-top:1.2rem; display:flex; gap:.8rem; flex-wrap:wrap; align-items:center }
     .btn{
-      appearance:none; cursor:pointer; border:0; border-radius:12px;
-      padding:.85rem 1.1rem; font-weight:600; font-size:1rem; transition:.2s ease;
-      background:var(--brand); color:#fff; box-shadow: 0 8px 20px rgba(37,99,235,.25);
+      appearance:none; cursor:pointer; border:1px solid color-mix(in oklab, var(--brand), #000 35%);
+      background: linear-gradient(180deg, color-mix(in oklab, var(--brand), #fff 10%), var(--brand));
+      color:#fff; font-weight:700; padding:.9rem 1.2rem; border-radius:14px; box-shadow:0 10px 24px rgba(37,99,235,.25);
+      transition: transform .08s ease, filter .2s ease;
     }
-    .btn:hover{ filter:brightness(1.05) }
+    .btn:hover{ filter:brightness(1.05) } .btn:active{ transform: translateY(1px) }
     .note{ color:var(--muted); font-size:.95rem }
 
-    /* عارض نتيجة/سجلات صغير */
-    .log{
-      margin-top:1rem; background:var(--card); border:1px dashed color-mix(in oklab, var(--card), #000 10%);
-      border-radius:12px; padding:.9rem; font: 500 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      white-space:pre-wrap; max-height:220px; overflow:auto
-    }
-
-    /* زر 3CX العائم */
+    /* زر 3CX العائم بإيقونة SVG مدمجة */
     .fab{
-      position: fixed; inset-block-end: 24px; inset-inline-end: 24px;
-      width:56px; height:56px; border-radius:50%; display:grid; place-items:center;
-      background:#0b1a2e; box-shadow: var(--shadow); border:1px solid #1f2b40; cursor:pointer;
+      position: fixed; inset-block-end: 24px; inset-inline-end: 24px; z-index: 50;
+      width:62px; height:62px; border-radius:50%;
+      display:grid; place-items:center; cursor:pointer;
+      background:#0b1a2e; border:1px solid #1f2b40; box-shadow: var(--shadow);
     }
-    .fab img{ width:60%; height:60%; object-fit:contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,.25)); }
-    .fab:active{ transform: translateY(1px); }
+    .fab svg{ width:64%; height:64%; }
+    .fab:active{ transform: translateY(1px) }
 
     /* النافذة المنبثقة */
     .modal{
       position:fixed; inset:0; display:none; place-items:center; padding:1rem;
-      background: color-mix(in oklab, #000 60%, transparent); z-index:50;
+      background: rgba(0,0,0,.5);
     }
-    .modal[open]{ display:grid; animation:fade .15s ease }
+    .modal[open]{ display:grid; animation:fade .12s ease }
     @keyframes fade{ from{ opacity:0 } to{ opacity:1 } }
     .sheet{
-      width:min(520px, 100%); background:var(--card); color:var(--txt);
+      width:min(520px, 100%); background: rgba(17,24,39,.9); color:var(--txt);
       border-radius:16px; padding:1.25rem 1.25rem 1rem; box-shadow: var(--shadow);
-      border:1px solid color-mix(in oklab, var(--card), #000 6%);
+      border:1px solid var(--border);
     }
-    .sheet h3{ margin:.2rem 0 0; font-size:1.15rem }
-    .field{ margin:.9rem 0 .4rem }
-    label{ display:block; margin-bottom:.4rem; color:var(--muted) }
+    .sheet h3{ margin:.2rem 0 .6rem; font-size:1.15rem }
+    label{ display:block; margin:.4rem 0; color:var(--muted) }
     input[type="tel"]{
-      width:100%; padding:.85rem 1rem; border-radius:12px; background:transparent;
-      border:1px solid color-mix(in oklab, var(--card), #000 12%); color:inherit; font-size:1rem;
-      outline: none;
+      width:100%; padding:1rem; border-radius:12px; background:#0f1627; color:inherit;
+      border:1px solid color-mix(in oklab, #ffffff, #000 85%);
+      outline:none;
     }
-    .row{ display:flex; gap:.7rem; justify-content:flex-start; margin-top:.9rem; flex-wrap:wrap }
-    .btn.secondary{ background:transparent; color:var(--txt); border:1px solid color-mix(in oklab, var(--card), #000 12%); box-shadow:none }
-    .status{ margin-top:.7rem; font-size:.95rem }
-    .status.ok{ color:var(--ok) } .status.err{ color:var(--err) }
-
-    /* زر رئيسي في الهيدر (اختياري) */
-    .ghost{ background:transparent; color:var(--brand); border:1px solid color-mix(in oklab, var(--brand), #000 25%) }
+    .row{ display:flex; gap:.7rem; margin-top:.9rem; flex-wrap:wrap }
+    .btn.secondary{ background:transparent; color:#e2e8f0; border-color: color-mix(in oklab, #ffffff, #000 80%); box-shadow:none }
+    .status{ margin-top:.6rem; font-size:.95rem; min-height:1.2em; color:var(--muted) }
+    .status.ok{ color:#22c55e } .status.err{ color:#ef4444 }
   </style>
 </head>
 <body>
 
   <div class="wrap">
-    <section class="hero">
-      <h6 style="margin:0;color:var(--muted);font-weight:600">خدمة العملاء</h6>
+    <section class="hero" aria-label="خدمة العملاء">
+      <h6 style="margin:0;color:var(--muted);font-weight:700">خدمة العملاء</h6>
       <h1>مرحبًا بكم في صفحة خدمة العملاء</h1>
-      <p>يمكنك البدء باتصال فوري عبر سنترال <b>3CX</b>. اضغط الزر بالأسفل أو زر 3CX العائم، وأدخل رقم الوجهة (مثل 201) ليقوم النظام بالاتصال من تحويلة <b>327</b> إلى الرقم الذي تختاره.</p>
-
+      <p>يمكنك البدء باتصال فوري عبر سنترال <b>3CX</b>. اضغط الزر أدناه أو الزر العائم، وأدخل رقم الوجهة (مثل <b>201</b>) ليقوم النظام بالاتصال من تحويلة <b>327</b> إلى الرقم المطلوب.</p>
       <div class="cta">
-        <button class="btn" id="open-modal">بدء اتصال الآن</button>
-        <span class="note">الاتصال متاح للأرقام الداخلية أو الخارجية (+‪E.164‬).</span>
+        <button class="btn" id="open-modal" aria-haspopup="dialog">بدء اتصال الآن</button>
+        <span class="note">يدعم الأرقام الداخلية والخارجية (+E.164).</span>
       </div>
-
-      <pre class="log" id="log" aria-live="polite">جاهز.</pre>
+      <!-- تمت إزالة عرض المخرجات على الصفحة بناءً على طلبك -->
     </section>
   </div>
 
-  <!-- زر 3CX العائم (استخدم شعار 3CX، ضع صورة محلية /3cx-logo.png أو اترك الافتراضي) -->
-  <button class="fab" id="fab" title="اتصل عبر 3CX">
-    <img src="https://www.3cx.com/wp-content/uploads/2019/12/3CX-Logo-1.svg" alt="3CX" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%230b1a2e/><text x=%2232%22 y=%2238%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23fff%22>3CX</text></svg>'">
+  <!-- زر 3CX العائم (SVG مضمّن) -->
+  <button class="fab" id="fab" title="اتصل عبر 3CX" aria-label="اتصل عبر 3CX">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <rect x="0" y="0" width="64" height="64" rx="16" fill="#0b1a2e"/>
+      <text x="50%" y="56%" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" fill="#ffffff" font-weight="700">3CX</text>
+    </svg>
   </button>
 
   <!-- النافذة المنبثقة -->
-  <dialog class="modal" id="modal">
-    <div class="sheet" role="document">
-      <h3>الاتصال عبر 3CX</h3>
-      <div class="field">
-        <label for="to">أدخل الرقم المراد الاتصال به</label>
-        <input id="to" inputmode="tel" type="tel" placeholder="مثال: 201 أو +9715XXXXXXX" autocomplete="off" />
-      </div>
+  <dialog class="modal" id="modal" aria-modal="true" aria-labelledby="modal-title">
+    <div class="sheet">
+      <h3 id="modal-title">الاتصال عبر 3CX</h3>
+      <label for="to">أدخل الرقم المراد الاتصال به</label>
+      <input id="to" inputmode="tel" type="tel" placeholder="مثال: 201 أو +9715XXXXXXX" autocomplete="off" />
       <div class="row">
         <button class="btn" id="call-btn">اتصال</button>
         <button class="btn secondary" id="close-modal">إلغاء</button>
@@ -126,38 +121,30 @@
   </dialog>
 
   <script>
+    // عناصر
     const modal = document.getElementById('modal');
     const openModal = document.getElementById('open-modal');
     const closeModal = document.getElementById('close-modal');
     const fab = document.getElementById('fab');
     const input = document.getElementById('to');
     const callBtn = document.getElementById('call-btn');
-    const log = document.getElementById('log');
+    const statusEl = document.getElementById('status');
 
-    const open = () => {
-      modal.setAttribute('open', '');
-      input.value = '';
-      input.focus();
-      document.addEventListener('keydown', escClose, { once:true });
-    };
-    const close = () => {
-      modal.removeAttribute('open');
-      document.removeEventListener('keydown', escClose);
-    };
-    const escClose = (e) => { if (e.key === 'Escape') close(); };
-
+    // فتح/إغلاق
+    const open = () => { modal.setAttribute('open',''); input.value=''; input.focus(); document.addEventListener('keydown', escClose, { once:true }); };
+    const close = () => { modal.removeAttribute('open'); };
+    const escClose = (e) => { if(e.key==='Escape') close(); };
     openModal.addEventListener('click', open);
     fab.addEventListener('click', open);
     closeModal.addEventListener('click', close);
-    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    modal.addEventListener('click', e => { if(e.target===modal) close(); });
 
-    function print(x){ log.textContent = (typeof x === 'string') ? x : JSON.stringify(x, null, 2); }
-
+    // اتصال
     async function queueCall(to){
-      print('جارٍ تجهيز الطلب…');
       const ALLOWED = /^[0-9+*#]{2,32}$/;
       if(!ALLOWED.test((to||'').trim())){
-        print({ error: 'الرقم غير صالح', to });
+        statusEl.textContent = 'الرقم غير صالح.';
+        statusEl.className = 'status err';
         return { ok:false };
       }
       try{
@@ -167,24 +154,35 @@
           body: JSON.stringify({ to })
         });
         const txt = await res.text();
-        let data; try{ data = JSON.parse(txt); } catch{ data = { raw: txt || null }; }
-        print(data);
+        let data; try{ data = JSON.parse(txt); } catch { data = { raw: txt || null }; }
+        // لا نطبع أي JSON على الصفحة كما طلبت — فقط حالة مختصرة:
+        if(res.ok){
+          statusEl.textContent = '✔ تم إرسال الطلب إلى 3CX.';
+          statusEl.className = 'status ok';
+        }else{
+          statusEl.textContent = '✖ لم ينجح الإرسال. تحقّق من الصلاحيات/الإعدادات.';
+          statusEl.className = 'status err';
+        }
+        // لتتبّع داخلي فقط:
+        console.debug('enqueue result:', data);
         return { ok: res.ok, data };
       }catch(err){
-        print({ error: err.message });
+        statusEl.textContent = 'خطأ في الاتصال بالخادم.';
+        statusEl.className = 'status err';
+        console.error(err);
         return { ok:false };
       }
     }
 
     callBtn.addEventListener('click', async () => {
       const to = input.value.trim();
-      callBtn.disabled = true; callBtn.textContent = 'جارٍ الاتصال…';
-      document.getElementById('status').textContent = '';
+      callBtn.disabled = true;
+      callBtn.textContent = 'جارٍ الإرسال…';
+      statusEl.textContent = '';
       const result = await queueCall(to);
-      callBtn.disabled = false; callBtn.textContent = 'اتصال';
-      const st = document.getElementById('status');
-      if(result.ok){ st.textContent = '✔ تم إرسال الطلب إلى 3CX.'; st.className = 'status ok'; }
-      else{ st.textContent = '✖ لم ينجح الإرسال. تحقّق من الصلاحيات/الإعدادات.'; st.className = 'status err'; }
+      callBtn.disabled = false;
+      callBtn.textContent = 'اتصال';
+      if(result.ok){ setTimeout(close, 1200); }
     });
   </script>
 </body>
