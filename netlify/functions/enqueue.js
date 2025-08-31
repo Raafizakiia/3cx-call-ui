@@ -80,16 +80,19 @@ const bodyText = await callRes.text();
 let parsed;
 try {
   parsed = JSON.parse(bodyText);
-} catch (e) {
-  parsed = { raw: bodyText }; // fallback إذا ما كان JSON
+} catch {
+  parsed = { raw: bodyText || null }; // ← null إذا فاضي
 }
 
 return {
   statusCode: callRes.status,
   headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
   body: JSON.stringify({
+    ok: callRes.ok,
     status: callRes.status,
+    destination: dest,
     response: parsed
   })
 };
+
 };
