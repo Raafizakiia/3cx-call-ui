@@ -185,5 +185,18 @@
       if(result.ok){ setTimeout(close, 1200); }
     });
   </script>
+  <button class="fab" id="ai-fab" title="مساعد AI" aria-label="مساعد AI">🤖</button>
+
+<!-- نافذة AI -->
+<dialog class="modal" id="ai-modal">
+  <div class="sheet">
+    <h3>محادثة مع المساعد</h3>
+    <div id="chat-box" style="max-height:300px;overflow:auto;background:#111;padding:.8rem;border-radius:12px;font-size:.95rem"></div>
+    <div class="row">
+      <input id="ai-input" placeholder="اكتب سؤالك..." style="flex:1;padding:.8rem;border-radius:12px" />
+      <button class="btn" id="ai-send">إرسال</button>
+    </div>
+  </div>
+</dialog>
 </body>
 </html>
