@@ -15,7 +15,6 @@
       margin:0; color:var(--txt);
       font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Tajawal", "Noto Kufi Arabic", Arial, sans-serif;
       min-height:100svh;
-      /* خلفية مزخرفة */
       background:
         radial-gradient(1200px 600px at 110% -20%, rgba(37,99,235,.25), transparent),
         radial-gradient(1000px 500px at -10% -10%, rgba(16,185,129,.14), transparent),
@@ -48,17 +47,19 @@
     .btn:hover{ filter:brightness(1.05) } .btn:active{ transform: translateY(1px) }
     .note{ color:var(--muted); font-size:.95rem }
 
-    /* زر 3CX العائم بإيقونة SVG مدمجة */
+    /* زر 3CX العائم */
     .fab{
       position: fixed; inset-block-end: 24px; inset-inline-end: 24px; z-index: 50;
       width:62px; height:62px; border-radius:50%;
       display:grid; place-items:center; cursor:pointer;
       background:#0b1a2e; border:1px solid #1f2b40; box-shadow: var(--shadow);
     }
-.fab--ai{ inset-inline-end: 96px; z-index: 60; }
     .fab:active{ transform: translateY(1px) }
 
-    /* النافذة المنبثقة */
+    /* زر الروبوت يبتعد يسار زر 3CX */
+    .fab--ai{ inset-inline-end: 96px; z-index: 60; }
+
+    /* المودال الموحّد */
     .modal{
       position:fixed; inset:0; display:none; place-items:center; padding:1rem;
       background: rgba(0,0,0,.5);
@@ -94,11 +95,10 @@
         <button class="btn" id="open-modal" aria-haspopup="dialog">بدء اتصال الآن</button>
         <span class="note">يدعم الأرقام الداخلية والخارجية (+E.164).</span>
       </div>
-      <!-- تمت إزالة عرض المخرجات على الصفحة بناءً على طلبك -->
     </section>
   </div>
 
-  <!-- زر 3CX العائم (SVG مضمّن) -->
+  <!-- زر 3CX العائم -->
   <button class="fab" id="fab" title="اتصل عبر 3CX" aria-label="اتصل عبر 3CX">
     <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <rect x="0" y="0" width="64" height="64" rx="16" fill="#0b1a2e"/>
@@ -106,7 +106,7 @@
     </svg>
   </button>
 
-  <!-- النافذة المنبثقة -->
+  <!-- مودال 3CX -->
   <dialog class="modal" id="modal" aria-modal="true" aria-labelledby="modal-title">
     <div class="sheet">
       <h3 id="modal-title">الاتصال عبر 3CX</h3>
@@ -120,8 +120,29 @@
     </div>
   </dialog>
 
+  <!-- زر الروبوت العائم -->
+  <button class="fab fab--ai" id="ai-fab" title="مساعد AI" aria-label="مساعد AI">🤖</button>
+
+  <!-- مودال AI (واحد فقط) -->
+  <dialog class="modal" id="ai-modal" aria-modal="true" aria-labelledby="ai-title">
+    <div class="sheet" style="position:relative">
+      <h3 id="ai-title">محادثة مع المساعد</h3>
+      <button id="ai-close" class="btn secondary" style="position:absolute;top:.8rem;inset-inline-end:.8rem;padding:.4rem .7rem">إغلاق</button>
+
+      <div id="chat-box" style="max-height:320px;overflow:auto;background:#0f1627;padding:.8rem;border-radius:12px;font-size:.95rem;border:1px solid rgba(255,255,255,.08)"></div>
+
+      <div class="row">
+        <input id="ai-input" placeholder="اكتب سؤالك..." style="flex:1;padding:1rem;border-radius:12px;background:#0f1627;border:1px solid rgba(255,255,255,.12);color:#e5e7eb"/>
+        <button class="btn" id="ai-send">إرسال</button>
+      </div>
+
+      <div class="status" id="ai-status" aria-live="polite"></div>
+    </div>
+  </dialog>
+
+  <!-- سكريبت 3CX -->
   <script>
-    // عناصر
+    // عناصر 3CX
     const modal = document.getElementById('modal');
     const openModal = document.getElementById('open-modal');
     const closeModal = document.getElementById('close-modal');
@@ -130,7 +151,7 @@
     const callBtn = document.getElementById('call-btn');
     const statusEl = document.getElementById('status');
 
-    // فتح/إغلاق
+    // فتح/إغلاق مودال 3CX
     const open = () => { modal.setAttribute('open',''); input.value=''; input.focus(); document.addEventListener('keydown', escClose, { once:true }); };
     const close = () => { modal.removeAttribute('open'); };
     const escClose = (e) => { if(e.key==='Escape') close(); };
@@ -139,7 +160,7 @@
     closeModal.addEventListener('click', close);
     modal.addEventListener('click', e => { if(e.target===modal) close(); });
 
-    // اتصال
+    // استدعاء 3CX
     async function queueCall(to){
       const ALLOWED = /^[0-9+*#]{2,32}$/;
       if(!ALLOWED.test((to||'').trim())){
@@ -155,7 +176,6 @@
         });
         const txt = await res.text();
         let data; try{ data = JSON.parse(txt); } catch { data = { raw: txt || null }; }
-        // لا نطبع أي JSON على الصفحة كما طلبت — فقط حالة مختصرة:
         if(res.ok){
           statusEl.textContent = '✔ تم إرسال الطلب إلى 3CX.';
           statusEl.className = 'status ok';
@@ -163,7 +183,6 @@
           statusEl.textContent = '✖ لم ينجح الإرسال. تحقّق من الصلاحيات/الإعدادات.';
           statusEl.className = 'status err';
         }
-        // لتتبّع داخلي فقط:
         console.debug('enqueue result:', data);
         return { ok: res.ok, data };
       }catch(err){
@@ -185,168 +204,77 @@
       if(result.ok){ setTimeout(close, 1200); }
     });
   </script>
+
+  <!-- سكريبت AI (واحد فقط) -->
   <script>
-  // عناصر واجهة AI
-  const aiModal = document.getElementById('ai-modal');
-  const aiFab = document.getElementById('ai-fab');
-  const aiSend = document.getElementById('ai-send');
-  const aiInput = document.getElementById('ai-input');
-  const chatBox = document.getElementById('chat-box');
+  window.addEventListener('DOMContentLoaded', () => {
+    const aiModal = document.getElementById('ai-modal');
+    const aiFab   = document.getElementById('ai-fab');
+    const aiSend  = document.getElementById('ai-send');
+    const aiInput = document.getElementById('ai-input');
+    const aiClose = document.getElementById('ai-close');
+    const chatBox = document.getElementById('chat-box');
+    const aiStatus= document.getElementById('ai-status');
 
-  // فتح النافذة
-  aiFab.onclick = () => {
-    aiModal.setAttribute('open','');
-    aiInput.focus();
-  };
+    // فتح/إغلاق مودال AI (نفس أسلوب 3CX)
+    const openAi = () => { aiModal.setAttribute('open',''); aiInput.focus(); };
+    const closeAi = () => { aiModal.removeAttribute('open'); };
 
-  // دالة النطق الصوتي
-  function speak(text){
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "ar-SA"; // اللغة: عربي
-    u.rate = 1;
-    speechSynthesis.speak(u);
-  }
+    // نطق صوتي عربي
+    function speak(text){
+      try { speechSynthesis.cancel(); } catch {}
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "ar-SA";
+      u.rate = 1;
+      speechSynthesis.speak(u);
+    }
 
-  // عند الضغط على إرسال
-  aiSend.onclick = async () => {
-    const msg = aiInput.value.trim();
-    if(!msg) return;
+    // ربط الأحداث
+    aiFab?.addEventListener('click', openAi);
+    aiClose?.addEventListener('click', closeAi);
+    aiModal?.addEventListener('click', (e) => { if (e.target === aiModal) closeAi(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && aiModal.hasAttribute('open')) closeAi(); });
 
-    // أضف رسالة المستخدم
-    chatBox.innerHTML += `<div style="color:#38bdf8;margin:.3rem 0">👤: ${msg}</div>`;
-    aiInput.value = '';
+    // إرسال سؤال للـ Function
+    async function sendMessage() {
+      const msg = aiInput.value.trim();
+      if (!msg) return;
 
-    // استدعاء دالة Netlify (chat.js)
-    const res = await fetch('/.netlify/functions/chat', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ message: msg })
+      chatBox.innerHTML += `<div style="color:#38bdf8;margin:.3rem 0">👤: ${msg}</div>`;
+      aiInput.value = '';
+      aiStatus.textContent = 'جارٍ التفكير…';
+
+      try{
+        const res = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ message: msg })
+        });
+
+        const data  = await res.json().catch(()=>({}));
+        const reply = data?.reply || 'تعذّر الحصول على رد. تأكّد من دالة السيرفر أو المفتاح.';
+
+        chatBox.innerHTML += `<div style="color:#22c55e;margin:.3rem 0">🤖: ${reply}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        aiStatus.textContent = '';
+        speak(reply);
+
+      }catch(err){
+        console.error(err);
+        aiStatus.textContent = 'خطأ في الاتصال بالخادم.';
+        speak('حدث خطأ في الاتصال بالخادم.');
+      }
+    }
+
+    aiSend?.addEventListener('click', sendMessage);
+    aiInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
     });
-
-    const data = await res.json();
-    const reply = data.reply || "لم أفهم، حاول مرة أخرى.";
-
-    // أضف رد البوت
-    chatBox.innerHTML += `<div style="color:#22c55e;margin:.3rem 0">🤖: ${reply}</div>`;
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    // نطق الرد
-    speak(reply);
-  };
-</script>
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-  // عناصر الواجهة
-  const aiModal = document.getElementById('ai-modal');
-  const aiFab   = document.getElementById('ai-fab');
-  const aiSend  = document.getElementById('ai-send');
-  const aiInput = document.getElementById('ai-input');
-  const aiClose = document.getElementById('ai-close');
-  const chatBox = document.getElementById('chat-box');
-  const aiStatus= document.getElementById('ai-status');
-
-  // افتح النافذة (نستخدم showModal إن وُجدت، وإلا نضيف [open])
-  const openAi = () => {
-    if (aiModal?.showModal) aiModal.showModal();
-    else aiModal?.setAttribute('open','');
-    aiInput?.focus();
-  };
-
-  // أغلق النافذة
-  const closeAi = () => {
-    if (aiModal?.close) try { aiModal.close(); } catch {}
-    aiModal?.removeAttribute('open');
-  };
-
-  // نطق صوتي عربي
-  function speak(text){
-    try { speechSynthesis.cancel(); } catch {}
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "ar-SA";
-    u.rate = 1;
-    speechSynthesis.speak(u);
-  }
-
-  // أربط الأحداث
-  aiFab?.addEventListener('click', openAi);
-  aiClose?.addEventListener('click', closeAi);
-  aiModal?.addEventListener('click', (e) => { if (e.target === aiModal) closeAi(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && aiModal?.hasAttribute('open')) closeAi(); });
-
-  // إرسال السؤال
-  async function sendMessage() {
-    const msg = aiInput.value.trim();
-    if (!msg) return;
-
-    // اطبع سؤال المستخدم
-    chatBox.innerHTML += `<div style="color:#38bdf8;margin:.3rem 0">👤: ${msg}</div>`;
-    aiInput.value = '';
-    aiStatus.textContent = 'جارٍ التفكير…';
-
-    try{
-      const res = await fetch('/.netlify/functions/chat', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ message: msg })
-      });
-
-      const data  = await res.json().catch(()=>({}));
-      const reply = data?.reply || 'تعذّر الحصول على رد. تأكّد من دالة السيرفر أو المفتاح.';
-
-      // اطبع رد البوت + انطقه
-      chatBox.innerHTML += `<div style="color:#22c55e;margin:.3rem 0">🤖: ${reply}</div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
-      aiStatus.textContent = '';
-      speak(reply);
-
-    }catch(err){
-      console.error(err);
-      aiStatus.textContent = 'خطأ في الاتصال بالخادم.';
-      speak('حدث خطأ في الاتصال بالخادم.');
-    }
-  }
-
-  aiSend?.addEventListener('click', sendMessage);
-  aiInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
   });
-});
-</script>
-  <button class="fab" id="ai-fab" title="مساعد AI" aria-label="مساعد AI">🤖</button>
-
-<!-- نافذة AI -->
-<dialog class="modal" id="ai-modal">
-  <div class="sheet">
-    <h3>محادثة مع المساعد</h3>
-    <div id="chat-box" style="max-height:300px;overflow:auto;background:#111;padding:.8rem;border-radius:12px;font-size:.95rem"></div>
-    <div class="row">
-      <input id="ai-input" placeholder="اكتب سؤالك..." style="flex:1;padding:.8rem;border-radius:12px" />
-      <button class="btn" id="ai-send">إرسال</button>
-    </div>
-  </div>
-</dialog>
-  <!-- زر الروبوت -->
-<button class="fab fab--ai" id="ai-fab" title="مساعد AI" aria-label="مساعد AI">🤖</button>
-
-<!-- نافذة الشات -->
-<dialog class="modal" id="ai-modal" aria-modal="true" aria-labelledby="ai-title">
-  <div class="sheet" style="position:relative">
-    <h3 id="ai-title">محادثة مع المساعد</h3>
-    <button id="ai-close" class="btn secondary" style="position:absolute;top:.8rem;inset-inline-end:.8rem;padding:.4rem .7rem">إغلاق</button>
-
-    <div id="chat-box" style="max-height:320px;overflow:auto;background:#0f1627;padding:.8rem;border-radius:12px;font-size:.95rem;border:1px solid rgba(255,255,255,.08)"></div>
-
-    <div class="row">
-      <input id="ai-input" placeholder="اكتب سؤالك..." style="flex:1;padding:1rem;border-radius:12px;background:#0f1627;border:1px solid rgba(255,255,255,.12);color:#e5e7eb"/>
-      <button class="btn" id="ai-send">إرسال</button>
-    </div>
-
-    <div class="status" id="ai-status" aria-live="polite"></div>
-  </div>
-</dialog>
+  </script>
 
 </body>
 </html>
