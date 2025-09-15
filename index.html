@@ -234,7 +234,87 @@
     speak(reply);
   };
 </script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // عناصر الواجهة
+  const aiModal = document.getElementById('ai-modal');
+  const aiFab   = document.getElementById('ai-fab');
+  const aiSend  = document.getElementById('ai-send');
+  const aiInput = document.getElementById('ai-input');
+  const aiClose = document.getElementById('ai-close');
+  const chatBox = document.getElementById('chat-box');
+  const aiStatus= document.getElementById('ai-status');
 
+  // افتح النافذة (نستخدم showModal إن وُجدت، وإلا نضيف [open])
+  const openAi = () => {
+    if (aiModal?.showModal) aiModal.showModal();
+    else aiModal?.setAttribute('open','');
+    aiInput?.focus();
+  };
+
+  // أغلق النافذة
+  const closeAi = () => {
+    if (aiModal?.close) try { aiModal.close(); } catch {}
+    aiModal?.removeAttribute('open');
+  };
+
+  // نطق صوتي عربي
+  function speak(text){
+    try { speechSynthesis.cancel(); } catch {}
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "ar-SA";
+    u.rate = 1;
+    speechSynthesis.speak(u);
+  }
+
+  // أربط الأحداث
+  aiFab?.addEventListener('click', openAi);
+  aiClose?.addEventListener('click', closeAi);
+  aiModal?.addEventListener('click', (e) => { if (e.target === aiModal) closeAi(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && aiModal?.hasAttribute('open')) closeAi(); });
+
+  // إرسال السؤال
+  async function sendMessage() {
+    const msg = aiInput.value.trim();
+    if (!msg) return;
+
+    // اطبع سؤال المستخدم
+    chatBox.innerHTML += `<div style="color:#38bdf8;margin:.3rem 0">👤: ${msg}</div>`;
+    aiInput.value = '';
+    aiStatus.textContent = 'جارٍ التفكير…';
+
+    try{
+      const res = await fetch('/.netlify/functions/chat', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ message: msg })
+      });
+
+      const data  = await res.json().catch(()=>({}));
+      const reply = data?.reply || 'تعذّر الحصول على رد. تأكّد من دالة السيرفر أو المفتاح.';
+
+      // اطبع رد البوت + انطقه
+      chatBox.innerHTML += `<div style="color:#22c55e;margin:.3rem 0">🤖: ${reply}</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      aiStatus.textContent = '';
+      speak(reply);
+
+    }catch(err){
+      console.error(err);
+      aiStatus.textContent = 'خطأ في الاتصال بالخادم.';
+      speak('حدث خطأ في الاتصال بالخادم.');
+    }
+  }
+
+  aiSend?.addEventListener('click', sendMessage);
+  aiInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+});
+</script>
   <button class="fab" id="ai-fab" title="مساعد AI" aria-label="مساعد AI">🤖</button>
 
 <!-- نافذة AI -->
