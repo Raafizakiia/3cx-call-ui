@@ -248,5 +248,25 @@
     </div>
   </div>
 </dialog>
+  <!-- زر الروبوت -->
+<button class="fab fab--ai" id="ai-fab" title="مساعد AI" aria-label="مساعد AI">🤖</button>
+
+<!-- نافذة الشات -->
+<dialog class="modal" id="ai-modal" aria-modal="true" aria-labelledby="ai-title">
+  <div class="sheet" style="position:relative">
+    <h3 id="ai-title">محادثة مع المساعد</h3>
+    <button id="ai-close" class="btn secondary" style="position:absolute;top:.8rem;inset-inline-end:.8rem;padding:.4rem .7rem">إغلاق</button>
+
+    <div id="chat-box" style="max-height:320px;overflow:auto;background:#0f1627;padding:.8rem;border-radius:12px;font-size:.95rem;border:1px solid rgba(255,255,255,.08)"></div>
+
+    <div class="row">
+      <input id="ai-input" placeholder="اكتب سؤالك..." style="flex:1;padding:1rem;border-radius:12px;background:#0f1627;border:1px solid rgba(255,255,255,.12);color:#e5e7eb"/>
+      <button class="btn" id="ai-send">إرسال</button>
+    </div>
+
+    <div class="status" id="ai-status" aria-live="polite"></div>
+  </div>
+</dialog>
+
 </body>
 </html>
