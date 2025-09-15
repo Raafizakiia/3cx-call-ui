@@ -185,6 +185,56 @@
       if(result.ok){ setTimeout(close, 1200); }
     });
   </script>
+  <script>
+  // عناصر واجهة AI
+  const aiModal = document.getElementById('ai-modal');
+  const aiFab = document.getElementById('ai-fab');
+  const aiSend = document.getElementById('ai-send');
+  const aiInput = document.getElementById('ai-input');
+  const chatBox = document.getElementById('chat-box');
+
+  // فتح النافذة
+  aiFab.onclick = () => {
+    aiModal.setAttribute('open','');
+    aiInput.focus();
+  };
+
+  // دالة النطق الصوتي
+  function speak(text){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "ar-SA"; // اللغة: عربي
+    u.rate = 1;
+    speechSynthesis.speak(u);
+  }
+
+  // عند الضغط على إرسال
+  aiSend.onclick = async () => {
+    const msg = aiInput.value.trim();
+    if(!msg) return;
+
+    // أضف رسالة المستخدم
+    chatBox.innerHTML += `<div style="color:#38bdf8;margin:.3rem 0">👤: ${msg}</div>`;
+    aiInput.value = '';
+
+    // استدعاء دالة Netlify (chat.js)
+    const res = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ message: msg })
+    });
+
+    const data = await res.json();
+    const reply = data.reply || "لم أفهم، حاول مرة أخرى.";
+
+    // أضف رد البوت
+    chatBox.innerHTML += `<div style="color:#22c55e;margin:.3rem 0">🤖: ${reply}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // نطق الرد
+    speak(reply);
+  };
+</script>
+
   <button class="fab" id="ai-fab" title="مساعد AI" aria-label="مساعد AI">🤖</button>
 
 <!-- نافذة AI -->
