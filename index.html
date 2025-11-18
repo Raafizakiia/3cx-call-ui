@@ -137,7 +137,7 @@
   });
 
   // ---- Upload to n8n ----
-  uploadBtn.addEventListener("click", async () => {
+uploadBtn.addEventListener("click", async () => {
     if (!fileInput.files.length) {
       setStatus("Please choose at least one image first.", "error");
       return;
@@ -150,7 +150,6 @@
     try {
       const formData = new FormData();
       Array.from(fileInput.files).forEach((file) => {
-        // "files" name – n8n webhook needs to use the same field
         formData.append("files", file);
       });
       formData.append("note", noteInput.value.trim());
@@ -164,19 +163,8 @@
         throw new Error("n8n response status " + res.status);
       }
 
-      // Recommended response format from n8n:
-      // {
-      //   "items": [
-      //     {
-      //       "filename": "tg200.png",
-      //       "subject": "yeastar",
-      //       "project": "Yeastar Gateways",
-      //       "url": "https://…"
-      //     },
-      //     ...
-      //   ]
-      // }
       const data = await res.json().catch(() => ({}));
+      console.log("n8n response:", data); // <— see this in browser console
 
       setStatus("Upload complete. Gemini will now sort your images.", "ok");
 
@@ -186,17 +174,21 @@
       updateFileCount();
 
       // Show recent list if backend sent items
+      recentListEl.innerHTML = "";     // clear
       if (data && Array.isArray(data.items) && data.items.length) {
-        recentListEl.innerHTML = "";
         data.items.forEach((item) => {
           const li = document.createElement("li");
           const subject = item.subject || item.project || "Unknown subject";
-          li.textContent =
-            (item.filename || "image") + " → " + subject;
+          li.textContent = (item.filename || "image") + " → " + subject;
           recentListEl.appendChild(li);
         });
-        recentEl.style.display = "block";
+      } else {
+        // fallback: show raw JSON
+        const li = document.createElement("li");
+        li.textContent = "Raw n8n response: " + JSON.stringify(data);
+        recentListEl.appendChild(li);
       }
+      recentEl.style.display = "block";
     } catch (err) {
       console.error(err);
       setStatus("Upload failed: " + err.message, "error");
