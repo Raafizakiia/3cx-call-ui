@@ -2,1016 +2,211 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Lab Study Vault</title>
+  <title>Study Upload – Telephony Lab</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --bg: #050816;
-      --bg-alt: #0b1020;
-      --accent: #3b82f6;
-      --accent-soft: rgba(59,130,246,0.16);
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --border: #1f2933;
-      --radius-lg: 18px;
-      --radius-md: 10px;
-      --radius-sm: 6px;
-      --shadow-soft: 0 18px 35px rgba(0,0,0,0.45);
-      --transition: 0.18s ease-out;
-      --sidebar-width: 230px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      background: radial-gradient(circle at top, #111827 0, #020617 42%, #000 100%);
-      color: var(--text);
-      height: 100vh;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .app {
-      display: flex;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: var(--sidebar-width);
-      background: linear-gradient(180deg, #020617, #020617 50%, #020617);
-      border-right: 1px solid var(--border);
-      padding: 18px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 700;
-      font-size: 18px;
-      letter-spacing: 0.02em;
-    }
-
-    .logo-badge {
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 0, #60a5fa, #2563eb);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: white;
-      box-shadow: 0 0 20px rgba(59,130,246,0.8);
-    }
-
-    .sidebar-section-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--muted);
-      margin-top: 4px;
-      margin-bottom: 4px;
-    }
-
-    .subject-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .subject-chip {
-      border-radius: 999px;
-      padding: 7px 10px;
-      font-size: 13px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: var(--muted);
-      background: transparent;
-      border: 1px solid transparent;
-      transition: var(--transition);
-    }
-
-    .subject-chip span {
-      pointer-events: none;
-    }
-
-    .subject-chip:hover {
-      background: rgba(15,23,42,0.9);
-      border-color: var(--border);
-      color: #e5e7eb;
-    }
-
-    .subject-chip.active {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      color: #dbeafe;
-      box-shadow: 0 0 0 1px rgba(37,99,235,0.35),
-                  0 10px 30px rgba(15,23,42,0.9);
-    }
-
-    .subject-count {
-      font-size: 11px;
-      padding: 1px 7px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(148,163,184,0.4);
-      color: var(--muted);
-    }
-
-    .sidebar-footer {
-      margin-top: auto;
-      font-size: 11px;
-      color: var(--muted);
-      border-top: 1px solid var(--border);
-      padding-top: 10px;
-    }
-
-    .sidebar-footer code {
-      font-size: 11px;
-      background: rgba(15,23,42,0.7);
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(31,41,55,0.9);
-    }
-
-    /* Main */
-    .main {
-      flex: 1;
-      padding: 18px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      overflow: hidden;
-    }
-
-    .main-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .title-block h1 {
-      font-size: 22px;
-      margin: 0;
-    }
-
-    .title-block p {
-      margin: 2px 0 0;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .pill {
-      font-size: 12px;
-      border-radius: 999px;
-      padding: 5px 10px;
-      border: 1px solid rgba(55,65,81,0.8);
-      background: rgba(15,23,42,0.9);
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34,197,94,0.26);
-    }
-
-    .layout {
-      display: flex;
-      gap: 14px;
-      height: calc(100% - 56px);
-    }
-
-    /* Upload panel */
-    .upload-panel {
-      width: 320px;
-      background: rgba(15,23,42,0.96);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft);
-      padding: 14px 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .upload-panel h2 {
-      margin: 0;
-      font-size: 16px;
-    }
-
-    .upload-panel p {
-      margin: 0;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .field-label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .select,
-    .input,
-    .textarea {
-      width: 100%;
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.94);
-      color: var(--text);
-      font-size: 13px;
-      padding: 7px 8px;
-      outline: none;
-      transition: var(--transition);
-    }
-
-    .select:focus,
-    .input:focus,
-    .textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(37,99,235,0.5);
-    }
-
-    .textarea {
-      resize: vertical;
-      min-height: 60px;
-      max-height: 180px;
-    }
-
-    .file-drop {
-      border-radius: var(--radius-md);
-      border: 1px dashed rgba(75,85,99,0.9);
-      padding: 14px 10px;
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
-      background: rgba(15,23,42,0.9);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .file-drop.drag-over {
-      border-style: solid;
-      border-color: var(--accent);
-      background: rgba(37,99,235,0.1);
-      color: #dbeafe;
-    }
-
-    .file-drop strong {
-      color: #e5e7eb;
-    }
-
-    .file-count {
-      margin-top: 4px;
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .btn {
-      border: none;
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: var(--transition);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: white;
-      box-shadow: 0 13px 30px rgba(37,99,235,0.7);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 18px 40px rgba(37,99,235,0.85);
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 1px solid rgba(75,85,99,0.9);
-      color: var(--muted);
-    }
-
-    .btn-outline:hover {
-      background: rgba(15,23,42,0.9);
-      color: var(--text);
-    }
-
-    .upload-footer {
-      display: flex;
-      gap: 8px;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 4px;
-    }
-
-    .hint {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .status {
-      font-size: 11px;
-      margin-top: 4px;
-    }
-
-    .status--ok {
-      color: #4ade80;
-    }
-    .status--error {
-      color: #f97373;
-    }
-
-    /* Gallery */
-    .gallery-panel {
-      flex: 1;
-      background: rgba(15,23,42,0.9);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      padding: 12px 14px 16px;
-      box-shadow: var(--shadow-soft);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .gallery-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .gallery-header h2 {
-      margin: 0;
-      font-size: 15px;
-    }
-
-    .gallery-header span {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .chips-filter {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .chip {
-      font-size: 11px;
-      border-radius: 999px;
-      padding: 4px 9px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.9);
-      color: var(--muted);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .chip.active {
-      background: rgba(59,130,246,0.16);
-      border-color: var(--accent);
-      color: #dbeafe;
-    }
-
-    .grid {
-      flex: 1;
-      overflow-y: auto;
-      padding-top: 6px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 10px;
-    }
-
-    .card {
-      background: radial-gradient(circle at 0 0, rgba(59,130,246,0.06), rgba(15,23,42,1));
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(31,41,55,0.9);
-      padding: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      cursor: pointer;
-      transition: var(--transition);
-      position: relative;
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.7);
-      border-color: rgba(59,130,246,0.5);
-    }
-
-    .card img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 10px;
-      background: #020617;
-    }
-
-    .card-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      font-size: 11px;
-    }
-
-    .card-subject {
-      color: #93c5fd;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      font-size: 10px;
-    }
-
-    .card-title {
-      color: var(--text);
-      font-size: 12px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card-note {
-      color: var(--muted);
-      font-size: 11px;
-      height: 30px;
-      overflow: hidden;
-    }
-
-    .badge {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(148,163,184,0.5);
-      color: var(--muted);
-    }
-
-    .empty-state {
-      text-align: center;
-      margin-top: 40px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .empty-state span {
-      display: inline-block;
-      margin-bottom: 6px;
-      font-size: 24px;
-    }
-
-    /* Viewer modal */
-    .viewer-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.88);
-      backdrop-filter: blur(4px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 40;
-    }
-
-    .viewer-backdrop.open {
-      display: flex;
-    }
-
-    .viewer {
-      max-width: 90vw;
-      max-height: 90vh;
-      background: #020617;
-      border-radius: 16px;
-      padding: 12px;
-      border: 1px solid rgba(55,65,81,0.9);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .viewer img {
-      max-width: 100%;
-      max-height: 70vh;
-      object-fit: contain;
-      border-radius: 12px;
-      background: #000;
-    }
-
-    .viewer-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .viewer-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .viewer-title {
-      color: var(--text);
-      font-size: 14px;
-    }
-
-    .viewer-chip {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #93c5fd;
-    }
-
-    .viewer-note {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .viewer-close {
-      border: none;
-      background: rgba(15,23,42,0.9);
-      border-radius: 999px;
-      color: var(--muted);
-      padding: 4px 8px;
-      cursor: pointer;
-      font-size: 12px;
-      border: 1px solid rgba(55,65,81,0.9);
-    }
-
-    .viewer-close:hover {
-      color: var(--text);
-      border-color: var(--accent);
-    }
-
-    @media (max-width: 960px) {
-      .sidebar {
-        display: none;
-      }
-      .main {
-        padding: 14px;
-      }
-      .layout {
-        flex-direction: column;
-      }
-      .upload-panel {
-        width: 100%;
-        order: 2;
-      }
-      .gallery-panel {
-        order: 1;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div class="logo">
-      <div class="logo-badge">L</div>
-      <span>Lab Study Vault</span>
-    </div>
-
-    <div>
-      <div class="sidebar-section-title">Subjects</div>
-      <div id="subjectList" class="subject-list"></div>
-    </div>
-
-    <div class="sidebar-footer">
-      <div>Uploads go through <code>n8n</code> for tagging & sorting.</div>
-    </div>
-  </aside>
-
-  <main class="main">
-    <div class="main-header">
-      <div class="title-block">
-        <h1>Network & Telephony Study Space</h1>
-        <p>Upload diagrams, screenshots, configs – review them later by subject.</p>
+<div class="app-shell">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <h1>Study Upload Portal</h1>
+        <p>
+          Upload screenshots, diagrams, configs. n8n + Gemini will auto-create
+          the right project/subject.
+        </p>
       </div>
-      <div class="pill">
-        <div class="pill-dot"></div>
-        Auto-sorted by n8n AI
+      <div class="card-badge">
+        <span class="card-badge-dot"></span>
+        <span>Connected to n8n</span>
       </div>
     </div>
 
-    <div class="layout">
-      <!-- Upload -->
-      <section class="upload-panel">
-        <div>
-          <h2>Quick Upload</h2>
-          <p>Select images, give an optional note, and send to n8n.</p>
-        </div>
-
-        <label class="field-label" for="subjectSelect">
-          Subject hint <span style="opacity:.7">(AI can override)</span>
-        </label>
-        <select id="subjectSelect" class="select">
-          <option value="auto">Auto detect (AI)</option>
-          <option value="yeastar">Yeastar</option>
-          <option value="3cx">3CX</option>
-          <option value="grandstream">Grandstream</option>
-          <option value="gateway">Gateways</option>
-          <option value="voip">VoIP / SIP</option>
-          <option value="network">Networking</option>
-          <option value="other">Other</option>
-        </select>
-
-        <label class="field-label" for="noteInput">
-          Note / caption
-        </label>
-        <textarea id="noteInput" class="textarea"
-                  placeholder="e.g. Yeastar TG200 SIP trunk config, 3CX outbound rules, Grandstream door phone wiring…"></textarea>
-
-        <label class="field-label">Images</label>
-        <div id="fileDrop" class="file-drop">
-          <strong>Click to choose</strong> or drop PNG/JPG/WebP here
-          <input id="fileInput" type="file" accept="image/*" multiple style="display:none" />
-          <div id="fileCount" class="file-count">No files selected</div>
-        </div>
-
-        <div class="upload-footer">
-          <button id="uploadBtn" class="btn btn-primary">
-            ⬆ Upload to n8n
-          </button>
-          <button id="refreshBtn" class="btn btn-outline">
-            ⟳ Refresh library
-          </button>
-        </div>
-
-        <div id="uploadStatus" class="status"></div>
-        <div class="hint">
-          Tip: configure your n8n workflow to classify by subject and
-          return the updated item list to display below.
-        </div>
-      </section>
-
-      <!-- Gallery -->
-      <section class="gallery-panel">
-        <div class="gallery-header">
-          <div>
-            <h2>Saved Items</h2>
-            <span id="gallerySummary">Loading…</span>
-          </div>
-          <div class="chips-filter" id="subjectFilterChips"></div>
-        </div>
-        <div id="cardGrid" class="grid"></div>
-        <div id="emptyState" class="empty-state" style="display:none;">
-          <span>📂</span><br />
-          No items yet. Upload some screenshots or diagrams on the left.
-        </div>
-      </section>
+    <!-- Upload area -->
+    <div id="uploadArea" class="upload-area">
+      <strong>Click to choose images</strong>
+      <p>or drag &amp; drop PNG / JPG / WEBP here</p>
+      <input
+        id="fileInput"
+        type="file"
+        accept="image/*"
+        multiple
+        style="display: none"
+      />
+      <div id="fileCount" class="upload-file-count">No files selected</div>
     </div>
-  </main>
-</div>
 
-<!-- Viewer -->
-<div id="viewerBackdrop" class="viewer-backdrop">
-  <div class="viewer">
-    <div class="viewer-header">
-      <div class="viewer-meta">
-        <div id="viewerSubject" class="viewer-chip"></div>
-        <div id="viewerTitle" class="viewer-title"></div>
-        <div id="viewerNote" class="viewer-note"></div>
+    <!-- Optional note -->
+    <div class="note-field">
+      <div class="note-label">
+        Optional note / description
+        <span style="opacity: 0.7">(helps Gemini understand context)</span>
       </div>
-      <button id="viewerClose" class="viewer-close">Close ✕</button>
+      <textarea
+        id="noteInput"
+        class="note-input"
+        placeholder="Example: Yeastar TG200 SIP trunk with 3CX, customer X; Grandstream doorphone wiring; 3CX outbound rule test…"
+      ></textarea>
     </div>
-    <img id="viewerImage" src="" alt="" />
+
+    <div class="actions-row">
+      <button id="uploadBtn" class="btn btn-primary">
+        ⬆ Upload to n8n
+      </button>
+      <div class="actions-hint">
+        n8n workflow should receive the images, call Gemini to detect the
+        subject, and create/update projects automatically.
+      </div>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div id="recent" class="recent-list" style="display: none;">
+      <div>Last uploaded items (from n8n response):</div>
+      <ul id="recentList"></ul>
+    </div>
   </div>
 </div>
 
 <script>
-  // ====== CONFIG – CHANGE THESE TO YOUR n8n WEBHOOKS ======
-  const N8N_UPLOAD_URL = 'https://YOUR-N8N-URL/webhook/upload-study-item';
-  const N8N_LIST_URL   = 'https://YOUR-N8N-URL/webhook/list-study-items';
-  // =======================================================
+  // =============================
+  //  CONFIG – CHANGE THIS URL
+  // =============================
+  // n8n Webhook that receives the images.
+  // It should accept multipart/form-data with:
+  //   files[] (binary)  and  note  (string)
+  //
+  // Example path:  /webhook/upload-study-images
+  const N8N_UPLOAD_URL = "https://YOUR-N8N-URL/webhook/upload-study-images";
+  // =============================
 
-  const subjectLabels = {
-    all: 'All',
-    yeastar: 'Yeastar',
-    '3cx': '3CX',
-    grandstream: 'Grandstream',
-    gateway: 'Gateways',
-    voip: 'VoIP / SIP',
-    network: 'Networking',
-    other: 'Other',
-    auto: 'Auto'
-  };
+  const fileInput = document.getElementById("fileInput");
+  const uploadArea = document.getElementById("uploadArea");
+  const fileCount = document.getElementById("fileCount");
+  const noteInput = document.getElementById("noteInput");
+  const uploadBtn = document.getElementById("uploadBtn");
+  const statusEl = document.getElementById("status");
+  const recentEl = document.getElementById("recent");
+  const recentListEl = document.getElementById("recentList");
 
-  let state = {
-    items: [],   // filled from n8n
-    activeSubject: 'all'
-  };
-
-  const subjectListEl = document.getElementById('subjectList');
-  const subjectFilterChipsEl = document.getElementById('subjectFilterChips');
-  const cardGridEl = document.getElementById('cardGrid');
-  const emptyStateEl = document.getElementById('emptyState');
-  const gallerySummaryEl = document.getElementById('gallerySummary');
-
-  const fileInputEl = document.getElementById('fileInput');
-  const fileDropEl = document.getElementById('fileDrop');
-  const fileCountEl = document.getElementById('fileCount');
-  const subjectSelectEl = document.getElementById('subjectSelect');
-  const noteInputEl = document.getElementById('noteInput');
-  const uploadBtnEl = document.getElementById('uploadBtn');
-  const refreshBtnEl = document.getElementById('refreshBtn');
-  const uploadStatusEl = document.getElementById('uploadStatus');
-
-  const viewerBackdropEl = document.getElementById('viewerBackdrop');
-  const viewerImageEl = document.getElementById('viewerImage');
-  const viewerSubjectEl = document.getElementById('viewerSubject');
-  const viewerTitleEl = document.getElementById('viewerTitle');
-  const viewerNoteEl = document.getElementById('viewerNote');
-  const viewerCloseEl = document.getElementById('viewerClose');
-
-  // --------- Helper Rendering ----------
-
-  function buildSubjectsFromItems(items) {
-    const counts = {};
-    items.forEach(item => {
-      const s = item.subject || 'other';
-      counts[s] = (counts[s] || 0) + 1;
-    });
-    return counts;
+  // ---- Helpers ----
+  function setStatus(message, type) {
+    statusEl.textContent = message || "";
+    statusEl.classList.remove("status--ok", "status--error");
+    if (type === "ok") statusEl.classList.add("status--ok");
+    if (type === "error") statusEl.classList.add("status--error");
   }
-
-  function renderSubjectSidebar() {
-    subjectListEl.innerHTML = '';
-    const counts = buildSubjectsFromItems(state.items);
-    const allCount = state.items.length;
-    const subjects = ['all', 'yeastar', '3cx', 'grandstream', 'gateway', 'voip', 'network', 'other'];
-
-    subjects.forEach(key => {
-      const el = document.createElement('button');
-      el.type = 'button';
-      el.className = 'subject-chip' + (state.activeSubject === key ? ' active' : '');
-      el.dataset.subject = key;
-
-      const label = subjectLabels[key] || key;
-      const spanLabel = document.createElement('span');
-      spanLabel.textContent = label;
-
-      const spanCount = document.createElement('span');
-      spanCount.className = 'subject-count';
-      spanCount.textContent = key === 'all' ? allCount : (counts[key] || 0);
-
-      el.append(spanLabel, spanCount);
-      el.addEventListener('click', () => {
-        state.activeSubject = key;
-        renderSubjectSidebar();
-        renderFilterChips();
-        renderGrid();
-      });
-      subjectListEl.appendChild(el);
-    });
-  }
-
-  function renderFilterChips() {
-    subjectFilterChipsEl.innerHTML = '';
-    const subjects = ['all', 'yeastar', '3cx', 'grandstream', 'gateway', 'voip', 'network', 'other'];
-    subjects.forEach(key => {
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = 'chip' + (state.activeSubject === key ? ' active' : '');
-      chip.textContent = subjectLabels[key] || key;
-      chip.addEventListener('click', () => {
-        state.activeSubject = key;
-        renderSubjectSidebar();
-        renderFilterChips();
-        renderGrid();
-      });
-      subjectFilterChipsEl.appendChild(chip);
-    });
-  }
-
-  function renderGrid() {
-    const subject = state.activeSubject;
-    const items = state.items.filter(item => {
-      if (subject === 'all') return true;
-      return (item.subject || 'other') === subject;
-    });
-
-    gallerySummaryEl.textContent = `${items.length} item(s) shown`;
-
-    cardGridEl.innerHTML = '';
-    if (items.length === 0) {
-      emptyStateEl.style.display = 'block';
-      return;
-    }
-    emptyStateEl.style.display = 'none';
-
-    items.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.dataset.id = item.id || '';
-
-      const img = document.createElement('img');
-      img.src = item.thumbnailUrl || item.url;
-      img.alt = item.title || '';
-
-      const badge = document.createElement('div');
-      badge.className = 'badge';
-      badge.textContent = subjectLabels[item.subject] || item.subject || 'Other';
-
-      const meta = document.createElement('div');
-      meta.className = 'card-meta';
-
-      const title = document.createElement('div');
-      title.className = 'card-title';
-      title.textContent = item.title || (item.filename || 'Untitled');
-
-      const note = document.createElement('div');
-      note.className = 'card-note';
-      note.textContent = item.note || '';
-
-      meta.appendChild(title);
-      meta.appendChild(note);
-
-      card.append(img, badge, meta);
-      card.addEventListener('click', () => openViewer(item));
-      cardGridEl.appendChild(card);
-    });
-  }
-
-  function openViewer(item) {
-    viewerImageEl.src = item.url;
-    viewerSubjectEl.textContent = subjectLabels[item.subject] || item.subject || 'OTHER';
-    viewerTitleEl.textContent = item.title || item.filename || 'Untitled';
-    viewerNoteEl.textContent = item.note || '';
-    viewerBackdropEl.classList.add('open');
-  }
-
-  function closeViewer() {
-    viewerBackdropEl.classList.remove('open');
-    viewerImageEl.src = '';
-  }
-
-  viewerBackdropEl.addEventListener('click', (e) => {
-    if (e.target === viewerBackdropEl) closeViewer();
-  });
-  viewerCloseEl.addEventListener('click', closeViewer);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeViewer();
-  });
-
-  // --------- Upload Handling ----------
-
-  fileDropEl.addEventListener('click', () => fileInputEl.click());
-  fileInputEl.addEventListener('change', updateFileCount);
 
   function updateFileCount() {
-    const count = fileInputEl.files.length;
-    fileCountEl.textContent = count === 0
-      ? 'No files selected'
-      : `${count} file${count > 1 ? 's' : ''} ready to upload`;
+    const count = fileInput.files.length;
+    fileCount.textContent =
+      count === 0
+        ? "No files selected"
+        : count + " file" + (count > 1 ? "s" : "") + " selected";
   }
 
-  // Drag & drop
-  ['dragenter', 'dragover'].forEach(evt => {
-    fileDropEl.addEventListener(evt, (e) => {
+  // ---- Upload area interactions ----
+  uploadArea.addEventListener("click", () => fileInput.click());
+
+  fileInput.addEventListener("change", updateFileCount);
+
+  ["dragenter", "dragover"].forEach((evt) => {
+    uploadArea.addEventListener(evt, (e) => {
       e.preventDefault();
       e.stopPropagation();
-      fileDropEl.classList.add('drag-over');
+      uploadArea.classList.add("drag-over");
     });
   });
-  ['dragleave', 'drop'].forEach(evt => {
-    fileDropEl.addEventListener(evt, (e) => {
+
+  ["dragleave", "drop"].forEach((evt) => {
+    uploadArea.addEventListener(evt, (e) => {
       e.preventDefault();
       e.stopPropagation();
-      fileDropEl.classList.remove('drag-over');
+      uploadArea.classList.remove("drag-over");
     });
   });
-  fileDropEl.addEventListener('drop', (e) => {
+
+  uploadArea.addEventListener("drop", (e) => {
     const files = e.dataTransfer.files;
     if (files && files.length) {
-      fileInputEl.files = files;
+      fileInput.files = files;
       updateFileCount();
     }
   });
 
-  uploadBtnEl.addEventListener('click', async () => {
-    if (!fileInputEl.files.length) {
-      setStatus('Select at least one image to upload.', 'error');
+  // ---- Upload to n8n ----
+  uploadBtn.addEventListener("click", async () => {
+    if (!fileInput.files.length) {
+      setStatus("Please choose at least one image first.", "error");
       return;
     }
-    uploadBtnEl.disabled = true;
-    uploadBtnEl.textContent = 'Uploading…';
-    setStatus('', null);
+
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = "Uploading…";
+    setStatus("Uploading to n8n…", null);
 
     try {
       const formData = new FormData();
-      Array.from(fileInputEl.files).forEach((file) => {
-        formData.append('files', file);
+      Array.from(fileInput.files).forEach((file) => {
+        // "files" name – n8n webhook needs to use the same field
+        formData.append("files", file);
       });
-      formData.append('subjectHint', subjectSelectEl.value);
-      formData.append('note', noteInputEl.value.trim());
+      formData.append("note", noteInput.value.trim());
 
       const res = await fetch(N8N_UPLOAD_URL, {
-        method: 'POST',
-        body: formData
+        method: "POST",
+        body: formData,
       });
 
       if (!res.ok) {
-        throw new Error('Upload failed: ' + res.status);
+        throw new Error("n8n response status " + res.status);
       }
 
-      // Expect n8n to return updated list like:
-      // { items: [ { id, subject, title, note, url, thumbnailUrl, filename } ] }
-      const data = await res.json();
-      if (data && Array.isArray(data.items)) {
-        state.items = data.items;
-        renderSubjectSidebar();
-        renderFilterChips();
-        renderGrid();
-      }
+      // Recommended response format from n8n:
+      // {
+      //   "items": [
+      //     {
+      //       "filename": "tg200.png",
+      //       "subject": "yeastar",
+      //       "project": "Yeastar Gateways",
+      //       "url": "https://…"
+      //     },
+      //     ...
+      //   ]
+      // }
+      const data = await res.json().catch(() => ({}));
 
-      fileInputEl.value = '';
+      setStatus("Upload complete. Gemini will now sort your images.", "ok");
+
+      // Reset fields
+      fileInput.value = "";
+      noteInput.value = "";
       updateFileCount();
-      noteInputEl.value = '';
-      subjectSelectEl.value = 'auto';
 
-      setStatus('Upload successful and library updated.', 'ok');
+      // Show recent list if backend sent items
+      if (data && Array.isArray(data.items) && data.items.length) {
+        recentListEl.innerHTML = "";
+        data.items.forEach((item) => {
+          const li = document.createElement("li");
+          const subject = item.subject || item.project || "Unknown subject";
+          li.textContent =
+            (item.filename || "image") + " → " + subject;
+          recentListEl.appendChild(li);
+        });
+        recentEl.style.display = "block";
+      }
     } catch (err) {
       console.error(err);
-      setStatus('Error: ' + err.message, 'error');
+      setStatus("Upload failed: " + err.message, "error");
     } finally {
-      uploadBtnEl.disabled = false;
-      uploadBtnEl.textContent = '⬆ Upload to n8n';
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = "⬆ Upload to n8n";
     }
   });
 
-  refreshBtnEl.addEventListener('click', () => {
-    fetchItemsFromN8N(true);
-  });
-
-  function setStatus(msg, type) {
-    uploadStatusEl.textContent = msg;
-    uploadStatusEl.classList.remove('status--ok', 'status--error');
-    if (type === 'ok') uploadStatusEl.classList.add('status--ok');
-    if (type === 'error') uploadStatusEl.classList.add('status--error');
-  }
-
-  // --------- n8n Integration (list) ----------
-
-  async function fetchItemsFromN8N(showStatus) {
-    try {
-      if (showStatus) setStatus('Refreshing items from n8n…', null);
-      const res = await fetch(N8N_LIST_URL);
-      if (!res.ok) throw new Error('List failed: ' + res.status);
-      const data = await res.json();
-      state.items = Array.isArray(data.items) ? data.items : [];
-      renderSubjectSidebar();
-      renderFilterChips();
-      renderGrid();
-      if (showStatus) setStatus('Library refreshed.', 'ok');
-    } catch (err) {
-      console.error(err);
-      if (showStatus) setStatus('Error loading items: ' + err.message, 'error');
-    }
-  }
-
-  // --------- Init ----------
-
-  (function init() {
-    renderSubjectSidebar();
-    renderFilterChips();
-    renderGrid();
-    fetchItemsFromN8N(false);
-  })();
+  // Initial state
+  updateFileCount();
 </script>
 </body>
 </html>
