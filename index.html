@@ -147,7 +147,7 @@ async function loadSubjects() {
     if (files && files.length) {
       fileInput.files = files;
       updateFileCount();
-      loadSubjects();
+      
 
     }
   });
@@ -188,6 +188,7 @@ uploadBtn.addEventListener("click", async () => {
       fileInput.value = "";
       noteInput.value = "";
       updateFileCount();
+         loadSubjects();
 
       // Show recent list if backend sent items
       recentListEl.innerHTML = "";     // clear
@@ -216,6 +217,7 @@ uploadBtn.addEventListener("click", async () => {
 
   // Initial state
   updateFileCount();
+   loadSubjects();
 </script>
 </body>
 </html>
