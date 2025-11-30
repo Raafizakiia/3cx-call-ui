@@ -104,13 +104,39 @@ async function loadSubjects() {
   try {
     const res = await fetch(N8N_LOAD_URL, { method: "GET" });
     if (!res.ok) throw new Error("Status " + res.status);
+
     const data = await res.json();
     console.log("Subjects:", data);
-    // هنا ترسم الـ subjects في الصفحة...
+
+    const subjects = Array.isArray(data.subjects) ? data.subjects : [];
+
+    subjectsListEl.innerHTML = "";
+
+    if (!subjects.length) {
+      subjectsListEl.innerHTML =
+        '<li style="font-size:11px;color:var(--muted);">No subjects found.</li>';
+      subjectsEl.style.display = "block";
+      return;
+    }
+
+    subjects.forEach((subject) => {
+      const li = document.createElement("li");
+      const count = subject.images ? subject.images.length : 0;
+      li.textContent = count
+        ? `${subject.name} (${count})`
+        : subject.name;
+      subjectsListEl.appendChild(li);
+    });
+
+    subjectsEl.style.display = "block";
   } catch (err) {
     console.error("Failed to load subjects", err);
+    subjectsListEl.innerHTML =
+      '<li style="font-size:11px;color:var(--muted);">Error loading subjects.</li>';
+    subjectsEl.style.display = "block";
   }
 }
+
 
   // ---- Helpers ----
   function setStatus(message, type) {
