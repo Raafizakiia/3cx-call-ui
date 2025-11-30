@@ -91,6 +91,8 @@
   // Example path:  /webhook/upload-study-images
 const N8N_UPLOAD_URL = "https://rafii.app.n8n.cloud/webhook/upload-study-images";
 const N8N_LOAD_URL   = "https://rafii.app.n8n.cloud/webhook/load-study-images";
+  const N8N_LOAD_IMAGES_URL = "https://rafii.app.n8n.cloud/webhook/load-subject-images";
+
 
   // =============================
 
@@ -104,6 +106,10 @@ const N8N_LOAD_URL   = "https://rafii.app.n8n.cloud/webhook/load-study-images";
   const recentListEl = document.getElementById("recentList");
   const subjectsEl = document.getElementById("subjects");
 const subjectsListEl = document.getElementById("subjectsList");
+
+  const galleryEl = document.getElementById("gallery");
+const galleryTitleEl = document.getElementById("galleryTitle");
+const galleryImagesEl = document.getElementById("galleryImages");
   
 async function loadSubjects() {
   try {
@@ -124,14 +130,20 @@ async function loadSubjects() {
       return;
     }
 
-    subjects.forEach((subject) => {
-      const li = document.createElement("li");
-      const count = subject.images ? subject.images.length : 0;
-      li.textContent = count
-        ? `${subject.name} (${count})`
-        : subject.name;
-      subjectsListEl.appendChild(li);
-    });
+subjects.forEach((subject) => {
+  const li = document.createElement("li");
+  const count = subject.images ? subject.images.length : 0;
+
+  li.textContent = count ? `${subject.name} (${count})` : subject.name;
+  li.style.cursor = "pointer";
+
+  li.addEventListener("click", () => {
+    loadImagesForSubject(subject.name);
+  });
+
+  subjectsListEl.appendChild(li);
+});
+
 
     subjectsEl.style.display = "block";
   } catch (err) {
@@ -139,6 +151,49 @@ async function loadSubjects() {
     subjectsListEl.innerHTML =
       '<li style="font-size:11px;color:var(--muted);">Error loading subjects.</li>';
     subjectsEl.style.display = "block";
+  }
+}
+
+  async function loadImagesForSubject(subjectName) {
+  try {
+    galleryEl.style.display = "block";
+    galleryTitleEl.textContent = "Loading images for " + subjectName + "…";
+    galleryImagesEl.innerHTML = "";
+
+    const url = N8N_LOAD_IMAGES_URL + "?subject=" + encodeURIComponent(subjectName);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Status " + res.status);
+
+    const data = await res.json();
+    const images = Array.isArray(data.images) ? data.images : [];
+
+    if (!images.length) {
+      galleryTitleEl.textContent = subjectName + " (no images)";
+      galleryImagesEl.innerHTML =
+        '<div style="font-size:11px;color:var(--muted);">No images found.</div>';
+      return;
+    }
+
+    galleryTitleEl.textContent =
+      subjectName + " – " + images.length + " image" + (images.length > 1 ? "s" : "");
+
+    images.forEach((img) => {
+      const link = document.createElement("a");
+      link.href = img.url;
+      link.target = "_blank";
+
+      const imageEl = document.createElement("img");
+      imageEl.src = img.url;
+      imageEl.alt = img.name || subjectName;
+
+      link.appendChild(imageEl);
+      galleryImagesEl.appendChild(link);
+    });
+  } catch (err) {
+    console.error("Failed to load images", err);
+    galleryTitleEl.textContent = "Error loading images for " + subjectName;
+    galleryImagesEl.innerHTML =
+      '<div style="font-size:11px;color:var(--muted);">Error loading images.</div>';
   }
 }
 
