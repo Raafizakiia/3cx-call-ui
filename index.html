@@ -239,6 +239,7 @@ uploadBtn.addEventListener("click", async () => {
         recentListEl.appendChild(li);
       }
       recentEl.style.display = "block";
+         loadSubjects();
     } catch (err) {
       console.error(err);
       setStatus("Upload failed: " + err.message, "error");
